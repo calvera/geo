@@ -39,6 +39,10 @@ class GeoJSONReader
      * @var bool
      */
     private $lenient;
+    /**
+     * @var bool
+     */
+    private $ignoreZ;
 
     /**
      * GeoJSONReader constructor.
@@ -47,9 +51,10 @@ class GeoJSONReader
      *                      The standard enforces a case-sensitive comparison, so this reader is case-sensitive by
      *                      default, but you can override this behaviour here.
      */
-    public function __construct(bool $lenient = false)
+    public function __construct(bool $lenient = false, bool $ignoreZ = false)
     {
         $this->lenient = $lenient;
+        $this->ignoreZ = $ignoreZ;
     }
 
     /**
@@ -207,6 +212,10 @@ class GeoJSONReader
      */
     private function genPoint(CoordinateSystem $cs, array $coords) : Point
     {
+        if ($this->ignoreZ) {
+            unset($coords[2]);
+        }
+
         return new Point($cs, ...$coords);
     }
 
@@ -322,6 +331,10 @@ class GeoJSONReader
      */
     private function hasZ(array $coords)
     {
+        if ($this->ignoreZ) {
+            return false;
+        }
+
         if (empty($coords)) {
             return false;
         }
